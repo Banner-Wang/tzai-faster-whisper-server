@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_ignore_empty=True, extra="ignore"
+        env_file="app/.env", env_ignore_empty=True, extra="ignore"
     )
     API_V1_STR: str = "/api/v1"
     DOMAIN: str = "localhost"
@@ -54,3 +54,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()  # type: ignore
+print(settings.PROJECT_NAME)
