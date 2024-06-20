@@ -7,7 +7,7 @@ import torch
 import whisper
 from faster_whisper import WhisperModel
 
-from whisper.utils import ResultWriter, WriteTXT, WriteSRT, WriteVTT, WriteTSV, WriteJSON
+from app.core.utils import ResultWriter, WriteTXT, WriteSRT, WriteVTT, WriteTSV, WriteJSON
 
 from app.core.config import settings
 
