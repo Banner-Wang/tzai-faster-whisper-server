@@ -12,12 +12,13 @@ from app.core.utils import load_audio
 from app.core.faster_whisper_asr import transcribe, language_detection
 
 LANGUAGE_CODES = sorted(list(tokenizer.LANGUAGES.keys()))
+ASR_ENGINE = "faster_whisper"
 
 router = APIRouter()
 
 
 @router.post("/transcribe")
-async def transcribe(
+async def asr(
         audio_file: UploadFile = File(...),
         encode: bool = Query(default=True, description="Encode audio first through ffmpeg"),
         task: Union[str, None] = Query(default="transcribe", enum=["transcribe", "translate"]),
@@ -25,7 +26,7 @@ async def transcribe(
         initial_prompt: Union[str, None] = Query(default=None),
         vad_filter: Annotated[bool | None, Query(
             description="Enable the voice activity detection (VAD) to filter out parts of the audio without speech",
-            include_in_schema=True
+            include_in_schema=(True if ASR_ENGINE == "faster_whisper" else False)
         )] = False,
         word_timestamps: bool = Query(default=False, description="Word level timestamps"),
         output: Union[str, None] = Query(default="txt", enum=["txt", "vtt", "srt", "tsv", "json"])
@@ -38,7 +39,7 @@ async def transcribe(
         result,
         media_type="text/plain",
         headers={
-            'Asr-Engine': 'faster_whisper',
+            'Asr-Engine': ASR_ENGINE,
             'Content-Disposition': f'attachment; filename="{quote(audio_file.filename)}.{output}"',
             'Asr-Cost-Time': f"{cost_time:.2f}s"
         }
