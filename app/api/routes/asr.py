@@ -25,7 +25,7 @@ async def transcribe(
         initial_prompt: Union[str, None] = Query(default=None),
         vad_filter: Annotated[bool | None, Query(
             description="Enable the voice activity detection (VAD) to filter out parts of the audio without speech",
-            include_in_schema=(True if settings.ASR_ENGINE == "faster_whisper" else False)
+            include_in_schema=True
         )] = False,
         word_timestamps: bool = Query(default=False, description="Word level timestamps"),
         output: Union[str, None] = Query(default="txt", enum=["txt", "vtt", "srt", "tsv", "json"])
@@ -38,7 +38,7 @@ async def transcribe(
         result,
         media_type="text/plain",
         headers={
-            'Asr-Engine': settings.ASR_ENGINE,
+            'Asr-Engine': 'faster_whisper',
             'Content-Disposition': f'attachment; filename="{quote(audio_file.filename)}.{output}"',
             'Asr-Cost-Time': f"{cost_time:.2f}s"
         }
