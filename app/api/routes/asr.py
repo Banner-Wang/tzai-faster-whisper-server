@@ -7,49 +7,17 @@ from urllib.parse import quote
 from fastapi import APIRouter, Query, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
 
-from app.core.azure_asr import AzureClient, MS_LANGUAGES
 from app.core.config import settings
-from app.models import AzureASRData
 from app.core.utils import load_audio
-
-if settings.ASR_ENGINE == "faster_whisper":
-    from app.core.faster_whisper_asr import transcribe, language_detection
-else:
-    from app.core.whisper_asr import transcribe, language_detection
+from app.core.faster_whisper_asr import transcribe, language_detection
 
 LANGUAGE_CODES = sorted(list(tokenizer.LANGUAGES.keys()))
 
 router = APIRouter()
 
 
-@router.post("/azure-asr", response_model=List[AzureASRData])
-async def azure_transcribe(
-        file: UploadFile = File(...),
-        languages: list = Query(..., description=f"语言列表; 参考：{MS_LANGUAGES}"),
-        is_develop: bool = Query(False, description="是否为开发模式")
-):
-    if not file.filename.endswith(".wav"):
-        raise HTTPException(status_code=400, detail="只支持wav音频格式")
-    if not set(languages).issubset(MS_LANGUAGES):
-        raise HTTPException(status_code=400, detail=f"不支持的语言: {languages}")
-
-    wav_file = os.path.join(settings.OUTPUT_BASE_DIR, file.filename)
-    with open(wav_file, "wb") as f:
-        f.write(file.file.read())
-
-    result = AzureClient().recognize_wav_stream(
-        wav_file,
-        languages,
-        is_develop=is_develop
-    )
-    if not result:
-        raise HTTPException(status_code=400, detail="azure_transcribe 发生异常，稍后再试。")
-
-    return result
-
-
-@router.post("/whisper-asr")
-async def asr(
+@router.post("/transcribe")
+async def transcribe(
         audio_file: UploadFile = File(...),
         encode: bool = Query(default=True, description="Encode audio first through ffmpeg"),
         task: Union[str, None] = Query(default="transcribe", enum=["transcribe", "translate"]),
@@ -77,7 +45,7 @@ async def asr(
     )
 
 
-@router.post("/whisper-detect-language")
+@router.post("/detect-language")
 async def detect_language(
         audio_file: UploadFile = File(...),
         encode: bool = Query(default=True, description="Encode audio first through FFmpeg")
