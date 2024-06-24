@@ -9,7 +9,7 @@ ENV HOME=/home/user \
 USER root
 
 RUN apt-get update && apt-get install -y ffmpeg \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
 WORKDIR $HOME/app
