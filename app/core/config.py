@@ -40,6 +40,7 @@ class Settings(BaseSettings):
             else:
                 raise ValueError(message)
 
+    ASR_ENGINE: str = "faster_whisper"
     WHISPER_ASR_MODEL: str = "large-v3"
     WHISPER_ASR_MODEL_PATH: str = os.path.join(os.path.expanduser("~"), ".cache", "whisper")
 
