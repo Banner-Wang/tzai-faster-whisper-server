@@ -13,8 +13,6 @@ WORKDIR $HOME
 
 RUN bash build.sh
 
-RUN bash load_model.sh
-
 # 复制应用代码到容器内，并将所有权设置为 root
 COPY --chown=root . $HOME
 
