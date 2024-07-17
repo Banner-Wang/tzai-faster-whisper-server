@@ -79,6 +79,8 @@ model_name=$MODEL_NAME
 app_dir=$(pwd)  # Model storage directory
 env_file=${app_dir}/app/.env
 
+sed -i "s/^ASR_ENGINE=.*$/ASR_ENGINE=\"finetune_whisper\"/" ${env_file}
+
 # 更新 .env 文件中的 WHISPER_ASR_MODEL 值
 sed -i "s/^WHISPER_ASR_MODEL=.*$/WHISPER_ASR_MODEL=\"${model_name}\"/" ${env_file}
 
