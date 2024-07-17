@@ -6,5 +6,3 @@ apt-get update && apt-get install -y ffmpeg \
 /opt/python3/bin/pip3 install --no-cache-dir --upgrade pip
 
 /opt/python3/bin/pip3 install loguru fastapi uvicorn pydantic pydantic_settings ffmpeg-python faster_whisper openai-whisper
-
-bash load_model.sh
