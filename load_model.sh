@@ -13,12 +13,23 @@ verify_md5() {
     local md5="$2"
 
     if [ ! -f "$file_path" ]; then
+        log "File not found: $file_path"
         return 1
     fi
 
     computed_md5=$(md5sum "$file_path" | awk '{print $1}')
-    [ "$computed_md5" == "$md5" ]
+    
+    if [ "$computed_md5" == "$md5" ]; then
+        log "MD5 check passed for $file_path"
+        return 0
+    else
+        log "MD5 check failed for $file_path"
+        log "Expected: $md5"
+        log "Computed: $computed_md5"
+        return 1
+    fi
 }
+
 
 download_model() {
     local model_name="$1"
@@ -47,15 +58,15 @@ download_model() {
 
         case $file_type in
             application/x-gzip)
-                echo "Extracting gzip compressed tar archive..."
+                log "Extracting gzip compressed tar archive..."
                 tar -xzvf "${model_tar_name}" -C "$model_dir" && rm -rf "${model_tar_name}"
                 ;;
             application/x-tar)
-                echo "Extracting uncompressed tar archive..."
+                log "Extracting uncompressed tar archive..."
                 tar -xvf "${model_tar_name}" -C "$model_dir" && rm -rf "${model_tar_name}"
                 ;;
             *)
-                echo "Unsupported file type: $file_type"
+                log "Unsupported file type: $file_type"
                 exit 1
                 ;;
         esac
@@ -87,21 +98,21 @@ sed -i "s/^WHISPER_ASR_MODEL=.*$/WHISPER_ASR_MODEL=\"${model_name}\"/" ${env_fil
 CURRENT_WHISPER_ASR_MODEL=$(grep "^WHISPER_ASR_MODEL" ${env_file} | cut -d'=' -f2 | tr -d '"')
 
 if [ "$CURRENT_WHISPER_ASR_MODEL" != "$model_name" ]; then
-  echo "Error: WHISPER_ASR_MODEL was not updated correctly."
+  log "Error: WHISPER_ASR_MODEL was not updated correctly."
   exit 1
 else
-  echo "WHISPER_ASR_MODEL updated successfully to $CURRENT_WHISPER_ASR_MODEL."
+  log "WHISPER_ASR_MODEL updated successfully to $CURRENT_WHISPER_ASR_MODEL."
 fi
 
 # 下载model对应的config.json文件
 if [ -f "config.json" ]; then
-    echo "config.json exists, remove"
+    log "config.json exists, remove"
     rm config.json
 fi
 
 wget http://svrgit.dingtone.xyz/aibasic/asr-models/-/raw/main/asr/${model_name}/config.json
 if [ $? -ne 0 ]; then
-    echo "Error: Download config.json failed."
+    log "Error: Download config.json failed."
     exit 1
 fi
 
